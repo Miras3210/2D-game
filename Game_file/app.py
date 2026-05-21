@@ -15,12 +15,12 @@ PLAYER_SPEED = 3
 
 # ---------------- WINDOW ----------------
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
-pygame.display.set_caption("The Dungeon")
+pygame.display.set_caption("Game_name")
 
 clock = pygame.time.Clock()
 
 # ---------------- LOAD MAP ----------------
-tmx_data = pytmx.load_pygame("map.tmx")
+tmx_data = pytmx.load_pygame("revised_ground_floor_map.tmx")
 
 # ---------------- LOAD PLAYER ----------------
 playerup = pygame.image.load("player-up.png").convert_alpha()
@@ -56,7 +56,7 @@ collision_rects = []
 for layer in tmx_data.visible_layers:
 
     
-    if layer.name == "OBject layer":
+    if layer.name == "Collision layer":
 
         for x, y, gid in layer:
 
@@ -71,7 +71,6 @@ for layer in tmx_data.visible_layers:
                 )
 
                 collision_rects.append(rect)
-
 # ---------------- GAME LOOP ----------------
 while True:
 
