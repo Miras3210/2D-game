@@ -12,8 +12,8 @@ pygame.init()
 #Dungeon = D, Floor = F
 
 # ---------------- SETTINGS ----------------
-WIDTH = 1000
-HEIGHT = 700
+WIDTH = 300
+HEIGHT = 500
 FPS = 60
 
 SCALE = 3
