@@ -19,6 +19,8 @@ FPS = 60
 SCALE = 3
 PLAYER_SPEED = 3
 
+CURRENT_MAP = "Assets/Villlage.tmx"
+
 # ---------------- WINDOW ----------------
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption("Game_name")
@@ -26,7 +28,7 @@ pygame.display.set_caption("Game_name")
 clock = pygame.time.Clock()
 
 # ---------------- LOAD MAP ----------------
-tmx_data = pytmx.load_pygame("Assets/revised_ground_floor_map.tmx")
+tmx_data = pytmx.load_pygame(CURRENT_MAP)
 
 # ---------------- LOAD PLAYER ----------------
 playerup = pygame.image.load("Assets/player-up.png").convert_alpha()
