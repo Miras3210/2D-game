@@ -5,6 +5,9 @@ from sys import exit
 
 pygame.init()
 
+#Entry/Exit coordinates
+#Dungeon = D, Floor = F
+
 # ---------------- SETTINGS ----------------
 WIDTH = 1000
 HEIGHT = 700
@@ -40,7 +43,7 @@ playerright = pygame.transform.scale(playerright, (PLAYER_SIZE, PLAYER_SIZE))
 player = playerdown
 
 # ---------------- PLAYER RECT ----------------
-playerrect = player.get_rect(center=(280, 250))
+playerrect = player.get_rect(center=(313, 544))
 
 # Smaller collision hitbox
 hitbox = pygame.Rect(
@@ -134,7 +137,7 @@ while True:
         hitbox.y += dy
 
     # -------- DRAW --------
-    screen.fill((20, 20, 20))
+    screen.fill((0, 0, 0))
 
     # map layers
     for layer in tmx_data.visible_layers:
