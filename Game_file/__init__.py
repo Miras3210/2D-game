@@ -4,6 +4,7 @@ print("the module is running")
 #----------------------------------------------UNDER DEVELOPMENT---------------------------------------------------------------------
 import pygame
 import pytmx
+import pyscroll
 from sys import exit
 
 pygame.init()
@@ -12,8 +13,8 @@ pygame.init()
 #Dungeon = D, Floor = F
 
 # ---------------- SETTINGS ----------------
-WIDTH = 800
-HEIGHT = 600
+WIDTH = 400
+HEIGHT = 300
 FPS = 60
 
 SCALE = 3
@@ -29,6 +30,13 @@ clock = pygame.time.Clock()
 
 # ---------------- LOAD MAP ----------------
 tmx_data = pytmx.load_pygame(CURRENT_MAP)
+
+# ---------------- Make the scrolling layer ---------------- 
+screen_size = (400, 300)
+map_data = pyscroll.TiledMapData(tmx_data)
+map_layer = pyscroll.BufferedRenderer(map_data, screen_size)
+group = pyscroll.PyscrollGroup(map_layer=map_layer)
+
 
 # ---------------- LOAD PLAYER ----------------
 playerup = pygame.image.load("Assets/player-up.png").convert_alpha()
@@ -48,7 +56,7 @@ playerright = pygame.transform.scale(playerright, (PLAYER_SIZE, PLAYER_SIZE))
 player = playerdown
 
 # ---------------- PLAYER RECT ----------------
-playerrect = player.get_rect(center=(313, 544))
+playerrect = player.get_rect(center=(400, 300))
 
 # Smaller collision hitbox
 hitbox = pygame.Rect(
@@ -57,6 +65,12 @@ hitbox = pygame.Rect(
     28,
     24
 )
+player_sprite = pygame.sprite.Sprite()
+player_sprite.image = playerdown
+player_sprite.rect = playerrect
+group.add(player_sprite)
+
+(800, 600)
 
 # ---------------- COLLISION SYSTEM ----------------
 collision_rects = []
@@ -111,8 +125,8 @@ while True:
         dx = PLAYER_SPEED
         player = playerright
 
-    # -------- X COLLISION --------
-    future_hitbox = hitbox.move(dx, 0)
+    # -------- COLLISION AND MOVEMENT --------
+    future_hitbox = hitbox.move(dx, dy)
 
     blocked = False
 
@@ -123,57 +137,17 @@ while True:
             break
 
     if not blocked:
-        playerrect.x += dx
+        player_sprite.rect.get_rect(center=(400+dx, 300+dy))
+        hitbox.y += dy
         hitbox.x += dx
 
-    # -------- Y COLLISION --------
-    future_hitbox = hitbox.move(0, dy)
-
-    blocked = False
-
-    for rect in collision_rects:
-
-        if future_hitbox.colliderect(rect):
-            blocked = True
-            break
-
-    if not blocked:
-        playerrect.y += dy
-        hitbox.y += dy
 
     # -------- DRAW --------
     screen.fill((0, 0, 0))
 
-    # map layers
-    for layer in tmx_data.visible_layers:
-
-        if hasattr(layer, "tiles"):
-
-            for x, y, gid in layer:
-
-                tile = tmx_data.get_tile_image_by_gid(gid)
-
-                if tile:
-
-                    # Scale map tiles
-                    tile = pygame.transform.scale(
-                        tile,
-                        (
-                            tmx_data.tilewidth * SCALE,
-                            tmx_data.tileheight * SCALE
-                        )
-                    )
-
-                    screen.blit(
-                        tile,
-                        (
-                            x * tmx_data.tilewidth * SCALE,
-                            y * tmx_data.tileheight * SCALE
-                        )
-                    )
-
-    # Draw player
-    screen.blit(player, playerrect)
+    # Draw player and center the camera angle on the player
+    group.center(player_sprite.rect.center)
+    group.draw(screen)
 
     # ---------------- DEBUG ----------------
     # Show collision boxes
