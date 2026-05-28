@@ -5,6 +5,7 @@
 
 import pygame
 import pytmx
+from . import maps
 from sys import exit
 
 pygame.init()
@@ -141,18 +142,6 @@ CURRENT_MAP = "Assets/Villlage.tmx"
 TILE_SIZE = 48
 FIRST_FRAME = 0
 PLAYER_SPEED = 5
-MAPS = { "Village" :{"Background" :"Assets/Villlage.tmx",
-                      "Doors" : [{"rect": pygame.Rect()
-                                  "target" : "Dungeon_Ground_Floor"
-                                  "spawn"  : ()}]}
-
-        "Dungeon_Ground_Floor" : "Assets/revised_ground_floor_map.tmx",
-        "Dungeon_Floor_1" : "Empty",
-        "Dungeon_Floor_2" : "Empty",
-        "Dungeon_Floor_3" : "Empty",
-        "Dungeon_Floor_4" : "Empty",
-        "Dungeon_Floor_5" : "Empty"
-        }
 
 # WINDOW GENERATION
 
