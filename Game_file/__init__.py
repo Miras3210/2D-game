@@ -5,7 +5,6 @@
 
 import pygame
 import pytmx
-from . import maps
 from sys import exit
 
 pygame.init()
@@ -66,29 +65,44 @@ class Player:
             if future_hitbox.colliderect(moved_rect):
                 collision = True
                 break
-
         return collision
+def Door_event(CURRENT_MAP):
+    EVENT = 0
+    for door in doors:
+        moved_rect = door["rect"].move(player.camera_x, player.camera_y)
+
+        if player.player_rect.colliderect(moved_rect):
+
+            CURRENT_MAP[0] = door["target"]
+
+            player.camera_x = door["spawn_x"]
+            player.camera_y = door["spawn_y"]
+            EVENT = 1
+    return EVENT
+
+
+    
 
 def code():
     """Just a function to keep the code DRY"""
-    for layer in tmx_data.visible_layers:
+    for layer in tmx_data[0].visible_layers:
                 if hasattr(layer, "tiles"):
                     for x, y, gid in layer:
-                        tile = tmx_data.get_tile_image_by_gid(gid)
+                        tile = tmx_data[0].get_tile_image_by_gid(gid)
                         if tile:
                             tile = pygame.transform.scale(
                                 tile,
                                 (
-                                    tmx_data.tilewidth * SCALE,
-                                    tmx_data.tileheight * SCALE
+                                    tmx_data[0].tilewidth * SCALE,
+                                    tmx_data[0].tileheight * SCALE
                                 )
                             )
 
                             screen.blit(
                                 tile,
                                 (
-                                    x * tmx_data.tilewidth * SCALE + player.camera_x,
-                                    y * tmx_data.tileheight * SCALE + player.camera_y
+                                    x * tmx_data[0].tilewidth * SCALE + player.camera_x,
+                                    y * tmx_data[0].tileheight * SCALE + player.camera_y
                                 )
                             )
 def display_map():
@@ -98,7 +112,7 @@ def display_map():
     else:
         code()
 
-def main(CURRENT_MAP):
+def main(CURRENT_MAP,tmx_data):
     """Main code and game loop"""
     while True:
 
@@ -111,9 +125,13 @@ def main(CURRENT_MAP):
         old_camera_y = player.camera_y
 
         player.handle_keys()
-        if player.collision():
+        NOT_COLLIDE = player.collision()
+        if NOT_COLLIDE:
             player.camera_x = old_camera_x
             player.camera_y = old_camera_y
+        event = Door_event(CURRENT_MAP)
+        if event == 1:
+            tmx_data[0] = pytmx.load_pygame(CURRENT_MAP[0])
 
         screen.fill((0, 0, 0))
         player.x = 0
@@ -131,6 +149,8 @@ def main(CURRENT_MAP):
         clock.tick(FPS)
         FIRST_FRAME = 1
         print(player.camera_x,player.camera_y)
+        event = 0
+        
 
 # CONSTANTS
 
@@ -138,7 +158,7 @@ WIDTH = 800
 HEIGHT = 600
 FPS = 60
 SCALE = 3
-CURRENT_MAP = "Assets/Villlage.tmx"
+CURRENT_MAP = ["Assets/Villlage.tmx"]
 TILE_SIZE = 48
 FIRST_FRAME = 0
 PLAYER_SPEED = 5
@@ -154,7 +174,7 @@ clock = pygame.time.Clock()
 
 # LOAD MAP
 
-tmx_data = pytmx.load_pygame(CURRENT_MAP)
+tmx_data = [pytmx.load_pygame(CURRENT_MAP[0])]
 
 # PLAYER IMAGE LOAD AND RESIZE
 
@@ -174,19 +194,41 @@ player_surf_right = pygame.transform.scale(player_right, (PLAYER_SIZE, PLAYER_SI
 
 collision_rects = []
 
-for layer in tmx_data.visible_layers:
+for layer in tmx_data[0].visible_layers:
     if layer.name == "Collision layer":
         for x, y, gid in layer:
             if gid != 0:
                 rect = pygame.Rect(
-                    x * tmx_data.tilewidth * SCALE,
-                    y * tmx_data.tileheight * SCALE,
-                    tmx_data.tilewidth * SCALE,
-                    tmx_data.tileheight * SCALE
+                    x * tmx_data[0].tilewidth * SCALE,
+                    y * tmx_data[0].tileheight * SCALE,
+                    tmx_data[0].tilewidth * SCALE,
+                    tmx_data[0].tileheight * SCALE
                 )
                 collision_rects.append(rect)
+
+doors = []
+for obj in tmx_data[0].get_layer_by_name("Door Layer"):
+
+    door_rect = pygame.Rect(
+        obj.x,
+        obj.y,
+        obj.width,
+        obj.height
+    )
+
+    target_map = obj.properties["target"]
+
+    spawn_x = obj.properties["spawn_x"]
+    spawn_y = obj.properties["spawn_y"]
+
+    doors.append({
+        "rect": door_rect,
+        "target": target_map,
+        "spawn_x": spawn_x,
+        "spawn_y" : spawn_y
+    })
 
 # MAKING A PLAYER OBJECT
 player = Player()
 
-main(CURRENT_MAP)
+CURRENT_MAP = main(CURRENT_MAP,tmx_data)
