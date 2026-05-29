@@ -101,7 +101,7 @@
 </data>
  </layer>
  <objectgroup id="6" name="Door Layer">
-  <object id="1" x="471.636" y="133.818">
+  <object id="1" x="464.136" y="128.318" width="15.5" height="15.25">
    <properties>
     <property name="spawn_x" type="int" value="0"/>
     <property name="spawn_y" type="int" value="0"/>
