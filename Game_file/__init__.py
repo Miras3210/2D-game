@@ -1,7 +1,6 @@
 #----------------------------------------------UNDER DEVELOPMENT----------------------------------------------
-
-# Module is for Main code that works for all maps
-# Dungeon = D, Floor = F
+#This is the main code.
+#Dungeon = D, Floor = F
 
 import pygame
 import pytmx
@@ -9,41 +8,52 @@ from sys import exit
 
 pygame.init()
 class Game:
+
+    """General Game class for the game"""
+
     def __init__(self):
+
         self.WIDTH = 800
         self.HEIGHT = 600
         self.FPS = 60
         self.SCALE = 3
-        self.CURRENT_MAP = "Assets/Villlage.tmx"
+        self.current_map = "Assets/Villlage.tmx"
         self.TILE_SIZE = 48
         self.PLAYER_SPEED = 10
         self.screen = pygame.display.set_mode((self.WIDTH, self.HEIGHT))
         self.clock = pygame.time.Clock()
         pygame.display.set_caption("Panacea")
-        self.tmx_data = pytmx.load_pygame(self.CURRENT_MAP)
+        self.tmx_data = pytmx.load_pygame(self.current_map)
         self.player = Player(self)
         self.collision_rects = []
         self.door_rects = []
         self.collision()
         self.door()
 
-    def Door_event(self):
-        pygame.time.delay(150)
-        EVENT = 0
+    def Door_event(self)-> bool:
+
+        """function for event of using a door
+        returns 1 if the event happens"""
+
+        EVENT = False
         for door in self.door_rects:
             moved_rect = door["rect"].move(self.player.camera_x, self.player.camera_y)
 
             if self.player.hitbox.colliderect(moved_rect):
                 print("check")
-                self.CURRENT_MAP = door["target"]
-                print(self.CURRENT_MAP)
+                self.current_map = door["target"]
+                print(self.current_map)
 
                 self.player.camera_x = door["spawn_x"]
                 self.player.camera_y = door["spawn_y"]
-                EVENT = 1
+                EVENT = True
+
         return EVENT
 
-    def collision(self):
+    def collision(self)-> None:
+
+        """function for creating collision rects"""
+
         self.collision_rects = []
         for layer in self.tmx_data.visible_layers:
             if layer.name == "Collision layer":
@@ -56,7 +66,11 @@ class Game:
                             self.tmx_data.tileheight * self.SCALE
                         )
                         self.collision_rects.append(rect)
-    def door(self):
+
+    def door(self)-> None:
+
+        """function to make list of door rects"""
+
         self.door_rects = []
         for obj in self.tmx_data.get_layer_by_name("Door Layer"):
 
@@ -78,8 +92,10 @@ class Game:
                 "spawn_y" : spawn_y
             })
     
-    def draw_map(self):
-        """Just a function to keep the code DRY"""
+    def draw_map(self)-> None:
+
+        """Function to draw the map"""
+
         for layer in self.tmx_data.visible_layers:
                     if hasattr(layer, "tiles"):
                         for x, y, gid in layer:
@@ -100,12 +116,11 @@ class Game:
                                         y * self.tmx_data.tileheight * self.SCALE + self.player.camera_y
                                     )
                                 )
-    def display_map(self):
-        self.draw_map()
 
+    def main(self)-> None:
 
-    def main(self):
         """Main code and game loop"""
+
         while True:
 
             for event in pygame.event.get():
@@ -122,8 +137,8 @@ class Game:
                 self.player.camera_x = old_camera_x
                 self.player.camera_y = old_camera_y
             event = self.Door_event()
-            if event == 1:
-                self.tmx_data = pytmx.load_pygame(self.CURRENT_MAP)
+            if event == True:
+                self.tmx_data = pytmx.load_pygame(self.current_map)
 
                 self.collision()
                 self.door()
@@ -131,13 +146,9 @@ class Game:
             self.screen.fill((0, 0, 0))
             self.player.x = 0
             self.player.y = 0
-
-            # print(player.player_rect.topleft,player.player_rect.topright,player.player_rect.bottomright,player.player_rect.bottomleft)
-
-            # BLTTING AND DRAWING
             
-            self.display_map() #To blit the tmx map
-            self.player.draw() # To blit the player 
+            self.draw_map() #To blit the tmx map
+            self.player.draw() # To blit the player
 
             pygame.display.update()
 
@@ -146,8 +157,10 @@ class Game:
             event = 0
 
 class Player:
+
     """A class for the player"""
-    def __init__(self, game):
+
+    def __init__(self, game: Game):
         self.game = game
         self.PLAYER_SIZE = 48
         self.player_up = pygame.image.load("Assets/player-up.png").convert_alpha()
@@ -167,13 +180,16 @@ class Player:
         self.hitbox = pygame.Rect(self.player_rect.x + 10,self.player_rect.y + 18,28,28)
          
 
-    def draw(self):
+    def draw(self)-> None:
+
         """ Draw on surface """
-        # blit yourself at your current position
+
         self.game.screen.blit(self.player_img, self.player_rect)
 
-    def handle_keys(self):
-        """ Handles Keys """
+    def handle_keys(self)-> None:
+
+        """ Handles Key interactions """
+
         key = pygame.key.get_pressed()
         if key[pygame.K_s] or key[pygame.K_DOWN]:
             self.camera_y -= self.game.PLAYER_SPEED 
@@ -192,9 +208,10 @@ class Player:
             self.x -= self.game.PLAYER_SPEED
             self.player_img = self.player_surf_left
 
-    def collision(self):
+    def collision(self)-> bool:
 
-        # update hitbox position
+        """creates smaller hitbox for the player,checks if there is collision with the map rects and returns collision as a bool"""
+
         self.hitbox.topleft = (
             self.player_rect.x + 10,
             self.player_rect.y + 18
