@@ -13,6 +13,7 @@ class Game:
 
     def __init__(self):
 
+        # Settings
         self.WIDTH = 800
         self.HEIGHT = 600
         self.FPS = 60
@@ -20,6 +21,7 @@ class Game:
         self.current_map = "Assets/Villlage.tmx"
         self.TILE_SIZE = 48
         self.PLAYER_SPEED = 10
+
         self.screen = pygame.display.set_mode((self.WIDTH, self.HEIGHT))
         self.clock = pygame.time.Clock()
         pygame.display.set_caption("Panacea")
@@ -69,7 +71,7 @@ class Game:
 
     def door(self)-> None:
 
-        """function to make list of door rects"""
+        """function to make list with door rects, target map of the door, and spawn points of the new map"""
 
         self.door_rects = []
         for obj in self.tmx_data.get_layer_by_name("Door Layer"):
@@ -161,7 +163,10 @@ class Player:
     """A class for the player"""
 
     def __init__(self, game: Game):
+
         self.game = game
+
+        # Player image loading,resizing,variable for current image and rect for player
         self.PLAYER_SIZE = 48
         self.player_up = pygame.image.load("Assets/player-up.png").convert_alpha()
         self.player_down = pygame.image.load("Assets/player-down.png").convert_alpha()
@@ -173,8 +178,11 @@ class Player:
         self.player_surf_right = pygame.transform.scale(self.player_right, (self.PLAYER_SIZE, self.PLAYER_SIZE))
         self.player_img = self.player_surf_down 
         self.player_rect = self.player_img.get_rect(center = (game.WIDTH // 2, game.HEIGHT // 2))
+
+        # Camera coordinates for the village map(first map)
         self.camera_x = -150
         self.camera_y = -1050
+
         self.x = 0
         self.y = 0
         self.hitbox = pygame.Rect(self.player_rect.x + 10,self.player_rect.y + 18,28,28)
@@ -188,22 +196,29 @@ class Player:
 
     def handle_keys(self)-> None:
 
-        """ Handles Key interactions """
+        """ Handles Key interactions, camera offsets and current player image"""
 
         key = pygame.key.get_pressed()
         if key[pygame.K_s] or key[pygame.K_DOWN]:
+
             self.camera_y -= self.game.PLAYER_SPEED 
             self.y += self.game.PLAYER_SPEED 
             self.player_img = self.player_surf_down
+
         if key[pygame.K_w] or key[pygame.K_UP]:
+
             self.camera_y += self.game.PLAYER_SPEED 
             self.y -= self.game.PLAYER_SPEED 
             self.player_img = self.player_surf_up
+
         if key[pygame.K_d] or key[pygame.K_RIGHT]:
+
             self.camera_x -= self.game.PLAYER_SPEED 
             self.x += self.game.PLAYER_SPEED 
             self.player_img = self.player_surf_right
+
         if key[pygame.K_a] or key[pygame.K_LEFT]:
+
             self.camera_x += self.game.PLAYER_SPEED 
             self.x -= self.game.PLAYER_SPEED
             self.player_img = self.player_surf_left
